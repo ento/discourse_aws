@@ -1,0 +1,4 @@
+discourse_docker/
+Dockerfile
+.ebextensions/
+sourcebundle.zip

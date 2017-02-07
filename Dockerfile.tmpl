@@ -1,0 +1,3 @@
+FROM $DOCKER_TAG
+EXPOSE 80
+ENTRYPOINT ["/sbin/eb-boot"]

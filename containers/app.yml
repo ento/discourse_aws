@@ -1,0 +1,97 @@
+templates:
+  - "templates/redis.template.yml"
+  - "templates/web.template.yml"
+  - "templates/web.ratelimited.template.yml"
+
+expose:
+  - "80:80"
+  - "443:443"
+  - "2222:22"
+
+# any extra arguments for Docker?
+# docker_args:
+
+params:
+  ## Which Git revision should this container use? (default: tests-passed)
+  version: tests-passed
+
+env:
+  LANG: en_US.UTF-8
+  ## TODO: How many concurrent web requests are supported?
+  ## With 2GB we recommend 3-4 workers, with 1GB only 2
+  ## If you have lots of memory, use one or two workers per logical CPU core
+  #UNICORN_WORKERS: 3
+  ##
+  ## TODO: The domain name this Discourse instance will respond to
+  DISCOURSE_HOSTNAME:
+  ##
+  ## Uncomment if you want the container to be started with the same
+  ## hostname (-h option) as specified above (default "$hostname-$config")
+  #DOCKER_USE_HOSTNAME: true
+  ##
+  ## TODO: The mailserver this Discourse instance will use
+  DISCOURSE_SMTP_ADDRESS: # (mandatory)
+  #DISCOURSE_SMTP_PORT: 587                        # (optional)
+  #DISCOURSE_SMTP_USER_NAME: user@example.com      # (optional)
+  #DISCOURSE_SMTP_PASSWORD: pa$$word               # (optional)
+  ##
+  ## The CDN address for this Discourse instance (configured to pull)
+  #DISCOURSE_CDN_URL: //discourse-cdn.example.com
+
+#volumes:
+#  - volume:
+#      host: /var/discourse/shared/web-only
+#      guest: /shared
+#  - volume:
+#      host: /var/discourse/shared/web-only/log/var-log
+#      guest: /var/log
+
+## The docker manager plugin allows you to one-click upgrade Discouse
+## http://discourse.example.com/admin/docker
+hooks:
+  after_code:
+    - exec:
+        cd: $home/plugins
+        cmd:
+          - git clone https://github.com/discourse/docker_manager.git
+  before_bundle_exec:
+    - exec:
+        cd: $home/lib/tasks
+        cmd:
+          - "echo 'Rake::Task[\"db:migrate\"].clear; task \"db:migrate\"; # killme' >> db.rake"
+          - "echo 'Rake::Task[\"assets:precompile\"].clear; task \"assets:precompile\"; # killme' >> assets.rake"
+  after_bundle_exec:
+    - replace:
+        filename: /var/www/discourse/lib/tasks/db.rake
+        from: /# killme$/
+        to: ""
+    - replace:
+        filename: /var/www/discourse/lib/tasks/assets.rake
+        from: /# killme$/
+        to: ""
+
+
+## Remember, this is YAML syntax - you can only have one block with a name
+run:
+  - exec: echo "Beginning of custom commands"
+  - exec: apt-get install python3-setuptools python3-dev -y
+  - exec: easy_install3 pip
+  - exec: pip3 install credstash
+  - file:
+      path: /sbin/eb-boot
+      chmod: "+x"
+      contents: |
+        #!/bin/bash
+        export DISCOURSE_DB_PASSWORD=$(credstash get discourse_db_password env=$DISCOURSE_ENV)
+        export DISCOURSE_SMTP_PASSWORD=$(credstash get discourse_smtp_password env=$DISCOURSE_ENV)
+
+        (
+          cd /var/www/discourse
+          su discourse -c 'bundle exec rake db:migrate'
+          su discourse -c 'bundle exec rake assets:precompile'
+        )
+
+        exec /sbin/boot
+
+  - exec: echo "End of custom commands"
+  - exec: awk -F\# '{print $1;}' ~/.ssh/authorized_keys | awk 'BEGIN { print "Authorized SSH keys for this container:"; } NF>=2 {print $NF;}'
