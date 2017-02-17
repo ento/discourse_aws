@@ -1,6 +1,9 @@
 #!/bin/bash -x
 
 app_name=discourse
+dev_env_name=discourse-dev
+prod_env_name=discourse-prod
+
 account_id=$(aws sts get-caller-identity --output text --query 'Account')
 region=$(aws configure get region)
 
