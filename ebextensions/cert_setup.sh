@@ -34,12 +34,6 @@ if [ ! -e "$domain_cert_dir/fullchain.pem" ] || [ ! -e "$domain_cert_dir/privkey
         --pre-hook "service nginx stop" \
         $CERTBOT_EXTRA_ARGS
     aws s3 sync --delete "$config_dir" s3://$CERT_S3_BUCKET/certs/$CERT_DOMAIN
-else
-    /opt/certbot/certbot-auto \
-        renew \
-        --standalone \
-        --pre-hook "service nginx stop"
-    aws s3 sync --delete "$config_dir" s3://$CERT_S3_BUCKET/certs/$CERT_DOMAIN
 fi
 
 rm -rf "$eb_cert_dir"

@@ -1,2 +1,2 @@
 # The newline at the end of this file is extremely important.  Cron won't run without it.
-0 7 * * * root /opt/certbot/certbot-auto renew --standalone --pre-hook "sudo initctl stop nginx" --post-hook "sudo initctl start nginx" $CERTBOT_EXTRA_ARGS
+0 7 * * * root /opt/certbot/certbot-auto renew --debug --standalone --pre-hook "sudo initctl stop nginx" --post-hook "sudo initctl start nginx" $CERTBOT_EXTRA_ARGS
