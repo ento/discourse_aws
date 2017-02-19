@@ -2,6 +2,8 @@
 
 if [ ! -d "discourse_docker" ]; then
     git clone https://github.com/discourse/discourse_docker.git
+else
+    (cd discourse_docker && git pull --rebase)
 fi
 
 source ./common-variables.sh
