@@ -7,6 +7,16 @@ data "aws_region" "current" {
 resource "aws_s3_bucket" "files" {
   bucket = "discourse-files-${var.cname_prefix}-${data.aws_caller_identity.current.account_id}"
 
+  # mirror the lifecycle rule set up by discourse
+  lifecycle_rule {
+    prefix = "tombstone/"
+    enabled = true
+
+    expiration {
+      days = 30
+    }
+  }
+
   tags {
     Terraform = "true"
   }
