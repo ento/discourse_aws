@@ -32,8 +32,8 @@ Discourse on AWS Elastic Beanstalk. Also Terraform modules.
 - whenever you expect certbot to do its thing, deploy strategy should be AllAtOnce
 - terraform apply
 - change db password on rds
-- credstash put discourse_db_password env=$env_name
-- credstash put discourse_smtp_password env=$env_name
+- credstash put discourse_db_password.discourse-dev
+- credstash put discourse_smtp_password.discourse-dev
 - build.sh
 - docker push
 - deploy-dev.sh
@@ -52,8 +52,8 @@ Discourse on AWS Elastic Beanstalk. Also Terraform modules.
 - terraform apply
 - change db password on rds
 - setup domain name: cname -> cname_prefix.region.elasticbeanstalk.com
-- credstash put discourse_db_password env=$env_name
-- credstash put discourse_smtp_password env=$env_name
+- credstash put discourse_db_password.discourse-prod
+- credstash put discourse_smtp_password.discourse-prod
 - deploy-prod.sh
 
 ## community setup
