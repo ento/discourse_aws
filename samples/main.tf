@@ -63,7 +63,7 @@ module "eb" {
   deployment_policy = "AllAtOnce"
   cert_email = "admin@${var.discourse_hostname}"
   cert_s3_bucket = "${var.cert_s3_bucket}"
-  certbot_extra_args = ""
+  certbot_extra_args = "--staging"
   developer_emails = "please-set-developer-emails"
   iam_role_policy_arns = ["${var.credstash_reader_policy_arn}"]
   iam_role_policy_arn_count = "1"

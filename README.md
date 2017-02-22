@@ -60,6 +60,7 @@ path/to/your/configs
 ## dev setup
 
 - write your own Terraform config by combining modules in `./tfmodules`  (see: `./samples/main.tf`)
+  - consider setting `certbot_extra_args` to `--staging` first to test SSL setup
 - plug in Terraform variables
   - SES username
   - domain name
@@ -76,13 +77,6 @@ path/to/your/configs
 - `./deploy-dev.sh`
   - creates and deploys an application version using the latest docker image on ECR: `vYYYYmmdd-HHMMSS-bYYYYmmdd-HHMMSS`
 - change deploy strategy to Immutable to avoid downtime during deploys
-
-## getting ready for let's encrypt production serer
-
-- ssh to the instance
-- sudo find /etc/letsencrypt -iname "$your_discourse_hostname*" | xargs rm -rf
-- also delete on s3
-- redeploy through Elastic Beanstalk console or another `./deploy-dev.sh`
 
 ## prod setup
 
@@ -111,6 +105,14 @@ same as dev setup except for:
   - reply by email enabled
   - test email receiver by using one of the test email addresses at http://docs.aws.amazon.com/ses/latest/DeveloperGuide/mailbox-simulator.html
 - go through the setup wizard
+
+## getting ready for let's encrypt production server
+
+- ssh into the instance
+- delete staging certs `sudo find /etc/letsencrypt -iname "$your_discourse_hostname*" | xargs rm -rf`
+- also delete on s3
+- remove `--staging` from `certbot_extra_args`. empty string is okay
+- redeploy through Elastic Beanstalk console or another `./deploy-dev.sh` / `./deploy-prod.sh`
 
 ## upgrading
 
