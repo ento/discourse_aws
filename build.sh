@@ -16,20 +16,21 @@ docker_path=`which docker.io || which docker`
 $docker_path history $image >/dev/null 2>&1 || $docker_path pull $image
 
 # generate discourse_docker/containers/app.yml
-templates=/build/containers/app.yml
+
+templates=/pwd/containers/app.yml
 if [ -e ../containers/app.yml ]; then
-    templates+=" /conf/containers/app.yml"
+    templates+=" /userconf/containers/app.yml"
 fi
 $docker_path \
     run \
     --rm \
-    -v `pwd`/../:/conf \
-    -v `pwd`:/build \
+    -v `pwd`/../:/userconf \
+    -v `pwd`:/pwd \
     $image \
     /usr/local/bin/ruby \
     -I /pups/lib \
-    /build/merge_templates.rb \
-    /build/discourse_docker/containers/app.yml \
+    /pwd/merge_templates.rb \
+    /pwd/discourse_docker/containers/app.yml \
     $templates
 
 (
