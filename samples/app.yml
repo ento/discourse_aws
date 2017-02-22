@@ -1,0 +1,7 @@
+# place a copy in ../containers/app.yaml
+hooks:
+  after_code:
+    - exec:
+        cd: $home/plugins
+        cmd:
+          - git clone https://github.com/discourse/discourse-solved.git

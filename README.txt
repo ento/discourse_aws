@@ -1,76 +1,116 @@
-Discourse on AWS Elastic Beanstalk. Also Terraform modules.
+Tooling to deploy Discourse on AWS.
 
 ## what's where
-- postgres: rds
-- email: ses
-- rails + redis: docker on beanstalk
-- passwords for postgres and email: credstash
-- ssl: let's encrypt + nginx on the ec2 instance managed by elastic beanstalk
 
-## what's different from launcher
-- skips db:migrate and assets:precompile on bootstrap
-- uses a custom boot script:
-  - fetch passwords and export as environment variables
-  - run db:migrate and assets:precompie
+- Postgres: RDS
+- Rails + Redis: Docker container on Elastic Beanstalk Single Instance deployment
+- Files and backups: S3
+- Outgoing email: SES
+- Incoming email + bounce handling: SES + AWS Lambda
+- Passwords for RDS and SES: credstash
+- SSL: Let's Encrypt + nginx on the EC2 instance managed by Elastic Beanstalk
+- Infrastructure management: Terraform
 
-## config
+## what's different from the official launcher
 
-- git clone ... ./discourse_eb
-- ./ebextensions/*.config
-  - any file in here will be copied to the sourcebundle for elastic beanstalk
-  - for setting up ssh keys
-- ./containers/app.yml
-  - this file, if present, will be merged with ./discourse_eb/containers/app.yml
-  - for configuring plugins to install
+- Skips `db:migrate` and `assets:precompile` on bootstrap
+- Uses a custom boot script to:
+  - Fetch passwords and export as environment variables
+  - Run `db:migrate` and `assets:precompie`
+  - Execute the original boot script
+
+## hardcoded assumptions
+
+- We will have one Elastic Beanstalk application named `discourse`
+- and two Elastic Beanstalk environments: `discourse-dev` and `discourse-prod`
+
+## directory layout
+
+```
+path/to/your/configs
+  discourse_aws/ # this repo
+  containers/app.yml           # optional pups template to customize the Docker build
+  ebextensions/                # optional Elastic Beanstalk configs
+  dev/*.tf                     # mix and match modules in discourse_elastic_beanstalk
+  prod/*.tf                    # to build AWS resources according to your needs.
+```
+
+- `discourse_aws/`
+  - bring in this repo in whatever way you like: git submodule, git subtree, or a plain git clone
+- `./containers/app.yml`
+  - this file, if present, will be merged with this repo's `./containers/app.yml`
+  - useful for configuring plugins to install (see: `./samples/app.yml`)
+- `./ebextensions/*.config`
+  - any file in here will be copied to the sourcebundle for Elastic Beanstalk
+  - useful for setting up SSH keys on the EC2 instance (see: `./samples/ssl.config`)
+
+## prerequisites
+
+- set up credstash
+- set up your domain name of choice
+  - CNAME -> cname_prefix.your_aws_region.elasticbeanstalk.com
+  - MX -> inbound-smtp.your_ses_region.amazonaws.com
+- set up SES
+  - make a new SES user/password
+  - verify your sender domain or email address
+  - make a receipt rule set and make it active
+  - request production access (this can be done later)
 
 ## dev setup
 
-- setup domain name: cname -> cname_prefix.region.elasticbeanstalk.com
-- make a new ses user/password
-- write your own terraform config by combining modules in ./tfmodules
-- plug in ses username to terraform and other variables
-- whenever you expect certbot to do its thing, deploy strategy should be AllAtOnce
-- terraform apply
-- change db password on rds
-- credstash put discourse_db_password.discourse-dev
-- credstash put discourse_smtp_password.discourse-dev
-- build.sh
-- docker push
-- deploy-dev.sh
+- write your own Terraform config by combining modules in `./tfmodules`  (see: `./samples/main.tf`)
+- plug in Terraform variables
+  - SES username
+  - domain name
+  - etc
+- initial deploy strategy should be AllAtOnce
+  - plus whenever you expect certbot to create a new certificate
+- `terraform apply`
+- change db password on RDS
+- `credstash put discourse_db_password.discourse-dev`
+- `credstash put discourse_smtp_password.discourse-dev`
+- `./build.sh`
+- do a `docker push`: exact command will be printed out by `build.sh`
+- `./deploy-dev.sh`
+- change deploy strategy to Immutable to avoid downtime during deploys
 
 ## getting ready for let's encrypt production serer
 
 - ssh to the instance
-- sudo find /etc/letsencrypt -iname "discourse.noredink.com*" | xargs rm -rf
+- sudo find /etc/letsencrypt -iname "$your_discourse_hostname*" | xargs rm -rf
 - also delete on s3
+- redeploy the same application version through Elastic Beanstalk console or another `./deploy-dev.sh`
 
 ## prod setup
 
-- write your own terraform config by combining modules in ./tfmodules
-- setup variables
-- whenever you expect certbot to do its thing, deploy strategy should be AllAtOnce
-- terraform apply
-- change db password on rds
-- setup domain name: cname -> cname_prefix.region.elasticbeanstalk.com
-- credstash put discourse_db_password.discourse-prod
-- credstash put discourse_smtp_password.discourse-prod
-- deploy-prod.sh
+same as dev setup except for:
+
+- `credstash put discourse_db_password.discourse-prod`
+- `credstash put discourse_smtp_password.discourse-prod`
+- deploy script is `./deploy-prod.sh`
 
 ## community setup
 
-- set email domains whitelist
-- add google login
-- sign up through google oauth and log out
-- grant admin to the second user
-- delete first user
-- disable local login
-- setup s3 upload
-- setup s3 backup
-- setup wizard
+- setup s3 upload (otherwise your uploads will be wiped after the next deploy)
+- setup s3 backup (optional)
+- secure login (optional)
+  - set email domains whitelist
+  - add Google login or another 3rd party auth provider of your choice
+  - sign up through the 3rd party auth provider
+  - as the first admin user, grant admin to the second user
+  - delete the first user
+  - disable local login
+- set up incoming email (advised to meet SES's bounce handling guidelines)
+  - generate an master API key under Admin > API, go to the Lambda function for receiving email, and set the API key as `DISCOURSE_API_KEY` enivonment variable
+  - manual polling enabled
+  - reply by email address
+  - reply by email enabled
+  - test email receiver by using one of the test email addresses at http://docs.aws.amazon.com/ses/latest/DeveloperGuide/mailbox-simulator.html
+- go through the setup wizard
 
 ## upgrading
 
-- build.sh
-- docker push
-- deploy-dev.sh
-- deploy-prod.sh
+- `./build.sh`
+- `docker push`
+- `./deploy-dev.sh`
+- `./deploy-prod.sh`
