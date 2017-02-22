@@ -47,7 +47,8 @@ path/to/your/configs
 
 ## prerequisites
 
-- set up credstash
+- install [Terraform](https://www.terraform.io/)
+- set up [credstash](https://github.com/fugue/credstash)
 - set up your domain name of choice
   - CNAME -> cname_prefix.your_aws_region.elasticbeanstalk.com
   - MX -> inbound-smtp.your_ses_region.amazonaws.com
