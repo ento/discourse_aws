@@ -4,6 +4,7 @@ Tooling to deploy Discourse on AWS.
 
 - Postgres: RDS
 - Rails + Redis: Docker container on Elastic Beanstalk Single Instance deployment
+- Docker registry: ECR
 - Files and backups: S3
 - Outgoing email: SES
 - Incoming email + bounce handling: SES + AWS Lambda
@@ -70,8 +71,10 @@ path/to/your/configs
 - `credstash put discourse_db_password.discourse-dev`
 - `credstash put discourse_smtp_password.discourse-dev`
 - `./build.sh`
+  - builds and tags a Discourse docker image as `vYYYYmmdd-HHMMSS`
 - do a `docker push`: exact command will be printed out by `build.sh`
 - `./deploy-dev.sh`
+  - creates and deploys an application version using the latest docker image on ECR: `vYYYYmmdd-HHMMSS-bYYYYmmdd-HHMMSS`
 - change deploy strategy to Immutable to avoid downtime during deploys
 
 ## getting ready for let's encrypt production serer
@@ -79,7 +82,7 @@ path/to/your/configs
 - ssh to the instance
 - sudo find /etc/letsencrypt -iname "$your_discourse_hostname*" | xargs rm -rf
 - also delete on s3
-- redeploy the same application version through Elastic Beanstalk console or another `./deploy-dev.sh`
+- redeploy through Elastic Beanstalk console or another `./deploy-dev.sh`
 
 ## prod setup
 
@@ -88,6 +91,7 @@ same as dev setup except for:
 - `credstash put discourse_db_password.discourse-prod`
 - `credstash put discourse_smtp_password.discourse-prod`
 - deploy script is `./deploy-prod.sh`
+  - deploys the same application version as `discourse-dev` environment's
 
 ## community setup
 
