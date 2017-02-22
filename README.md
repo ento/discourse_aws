@@ -92,19 +92,13 @@ same as dev setup except for:
 
 - setup s3 upload (otherwise your uploads will be wiped after the next deploy)
 - setup s3 backup (optional)
-- secure login (optional)
-  - set email domains whitelist
-  - add Google login or another 3rd party auth provider of your choice
-  - sign up through the 3rd party auth provider
-  - as the first admin user, grant admin to the second user
-  - delete the first user
-  - disable local login
-- set up incoming email (advised to meet SES's bounce handling guidelines)
-  - generate an master API key under Admin > API, go to the Lambda function for receiving email, and set the API key as `DISCOURSE_API_KEY` enivonment variable
-  - manual polling enabled
-  - reply by email address
-  - reply by email enabled
-  - test email receiver by using one of the test email addresses at http://docs.aws.amazon.com/ses/latest/DeveloperGuide/mailbox-simulator.html
+- set up incoming email (advisable - to meet SES's bounce handling guidelines)
+  - generate a master API key under Admin > API, go to the Lambda function for receiving email, and set the API key as `DISCOURSE_API_KEY` enivonment variable
+  - site setup
+    - manual polling enabled
+    - reply by email address
+    - reply by email enabled
+  - test email receiver by sending a test email to one of the test email addresses at http://docs.aws.amazon.com/ses/latest/DeveloperGuide/mailbox-simulator.html
 - go through the setup wizard
 
 ## getting ready for let's encrypt production server
