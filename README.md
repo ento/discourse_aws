@@ -7,7 +7,7 @@ Tooling to deploy Discourse on AWS.
 - Docker registry: ECR
 - Files and backups: S3
 - Outgoing email: SES
-- Incoming email + bounce handling: SES + AWS Lambda
+- Incoming email + bounce handling: SES + S3 + AWS Lambda
 - Passwords for RDS and SES: credstash
 - SSL: Let's Encrypt + nginx on the EC2 instance managed by Elastic Beanstalk
 - Infrastructure management: Terraform
