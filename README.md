@@ -32,7 +32,7 @@ path/to/your/configs
   discourse_aws/ # this repo
   containers/app.yml           # optional pups template to customize the Docker build
   ebextensions/                # optional Elastic Beanstalk configs
-  dev/*.tf                     # mix and match modules in discourse_elastic_beanstalk
+  dev/*.tf                     # mix and match modules from discourse_aws/tfmodules..
   prod/*.tf                    # to build AWS resources according to your needs.
 ```
 
