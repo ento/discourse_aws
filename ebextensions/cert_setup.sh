@@ -11,17 +11,14 @@ if [ ! -e /opt/certbot/certbot-auto ]; then
      chmod a+x /opt/certbot/certbot-auto
 fi
 
-config_dir=/etc/letsencrypt
-domain_cert_dir=$config_dir/live/$CERT_DOMAIN
-eb_cert_dir=$config_dir/live/ebcert
+source /etc/letsencrypt_backup/functions.sh
 
-if [ ! -e "$domain_cert_dir/fullchain.pem" ] || [ ! -e "$domain_cert_dir/privkey.pem" ]; then
-    aws s3 sync s3://$CERT_S3_BUCKET/certs/$CERT_DOMAIN "$config_dir" || true
+if cert_missing; then
+    restore_cert
 fi
 
-if [ ! -e "$domain_cert_dir/fullchain.pem" ] || [ ! -e "$domain_cert_dir/privkey.pem" ]; then
-    # need to clear the whole directory or certbot will complain
-    rm -rf "$config_dir/live" "$config_dir/archive" "$config_dir/renewal"
+if cert_missing; then
+    clean_cert
     /opt/certbot/certbot-auto \
         certonly \
         --debug \
@@ -33,8 +30,7 @@ if [ ! -e "$domain_cert_dir/fullchain.pem" ] || [ ! -e "$domain_cert_dir/privkey
         --keep-until-expiring \
         --pre-hook "service nginx stop" \
         $CERTBOT_EXTRA_ARGS
-    aws s3 sync --delete "$config_dir" s3://$CERT_S3_BUCKET/certs/$CERT_DOMAIN
+    backup_cert
 fi
 
-rm -rf "$eb_cert_dir"
-ln -sfT "$domain_cert_dir" "$eb_cert_dir"
+link_eb_cert
