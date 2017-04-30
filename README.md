@@ -109,9 +109,10 @@ same as dev setup except for:
 - remove `--staging` from `certbot_extra_args`. empty string is okay
 - redeploy through Elastic Beanstalk console or another `./deploy-dev.sh` / `./deploy-prod.sh`
 
-## upgrading
+## upgrading / adding plugins
 
-- `./build.sh`
-- `docker push`
-- `./deploy-dev.sh`
-- `./deploy-prod.sh`
+- optional: update your `./containers/app.yml`
+- `./build.sh`: builds a docker image locally
+- `docker push`: as instructed at the end of `./build.sh`'s output
+- `./deploy-dev.sh`: packages up a new application version and deploys to `discourse-dev`
+- `./deploy-prod.sh`: deploys the current application version deployed to `discourse-dev`
