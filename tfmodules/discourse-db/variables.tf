@@ -2,6 +2,14 @@ variable "name_prefix" {
   default = "discourse"
 }
 
+variable "tags" {
+  type = "map"
+
+  default = {
+    Terraform = "true"
+  }
+}
+
 variable "allocated_storage" {
   default = "5"
 }

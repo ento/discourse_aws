@@ -19,9 +19,7 @@ resource "aws_db_instance" "main" {
 
   parameter_group_name = "${aws_db_parameter_group.main.name}"
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 
   lifecycle {
     prevent_destroy = true
@@ -33,9 +31,7 @@ resource "aws_db_subnet_group" "main" {
   description = "${var.name_prefix}"
   subnet_ids  = ["${var.subnet_ids}"]
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 }
 
 resource "aws_db_parameter_group" "main" {
@@ -90,7 +86,5 @@ resource "aws_db_parameter_group" "main" {
     },
   ]
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 }
