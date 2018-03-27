@@ -4,6 +4,14 @@ variable "app_name" {}
 
 variable "env_name" {}
 
+variable "tags" {
+  type = "map"
+
+  default = {
+    Terraform = "true"
+  }
+}
+
 variable "vpc_id" {}
 
 variable "subnet_id" {}

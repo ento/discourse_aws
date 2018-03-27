@@ -7,9 +7,7 @@ data "aws_region" "current" {
 resource "aws_s3_bucket" "files" {
   bucket = "discourse-files-${var.cname_prefix}-${data.aws_caller_identity.current.account_id}"
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 
   # ignore lifecycle rule set up by discourse
   # see: discourse/lib/s3_helper.rb
@@ -109,9 +107,7 @@ resource "aws_elastic_beanstalk_environment" "main" {
   cname_prefix        = "${var.cname_prefix}"
   solution_stack_name = "64bit Amazon Linux 2016.09 v2.5.0 running Docker 1.12.6"
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
