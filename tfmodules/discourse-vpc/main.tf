@@ -14,9 +14,7 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  tags {
-    "Terraform" = "true"
-  }
+  tags = "${var.tags}"
 }
 
 resource "aws_security_group" "web" {
@@ -37,9 +35,7 @@ resource "aws_security_group" "web" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 }
 
 resource "aws_security_group" "db" {
@@ -53,7 +49,5 @@ resource "aws_security_group" "db" {
     security_groups = ["${aws_security_group.web.id}"]
   }
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 }
