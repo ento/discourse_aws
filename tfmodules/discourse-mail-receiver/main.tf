@@ -11,9 +11,7 @@ data "aws_region" "current" {
 resource "aws_s3_bucket" "mailbox" {
   bucket = "discourse-mailbox-${var.cname_prefix}-${data.aws_caller_identity.current.account_id}"
 
-  tags {
-    Terraform = "true"
-  }
+  tags = "${var.tags}"
 }
 
 resource "aws_s3_bucket_policy" "ses_mailbox_access" {
@@ -152,6 +150,8 @@ resource "aws_lambda_function" "mail_receiver" {
   role             = "${aws_iam_role.lambda_function.arn}"
   handler          = "handler.handler"
   source_code_hash = "${data.archive_file.lambda_function.output_base64sha256}"
+
+  tags = "${var.tags}"
 
   environment {
     variables = {

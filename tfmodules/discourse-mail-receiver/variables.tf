@@ -1,5 +1,13 @@
 variable "name_prefix" {}
 
+variable "tags" {
+  type = "map"
+
+  default = {
+    Terraform = "true"
+  }
+}
+
 variable "cname_prefix" {}
 
 variable "discourse_hostname" {}
