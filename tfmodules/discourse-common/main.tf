@@ -1,4 +1,4 @@
-data "aws_caller_identity" "current" { }
+data "aws_caller_identity" "current" {}
 
 resource "aws_elastic_beanstalk_application" "main" {
   name = "${var.app_name}"

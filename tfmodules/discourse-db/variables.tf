@@ -26,8 +26,7 @@ variable "multi_az" {
   default = "false"
 }
 
-variable "vpc_security_group_ids" {
-}
+variable "vpc_security_group_ids" {}
 
 variable "subnet_ids" {
   type = "list"
