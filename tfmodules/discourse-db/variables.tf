@@ -2,6 +2,14 @@ variable "name_prefix" {
   default = "discourse"
 }
 
+variable "tags" {
+  type = "map"
+
+  default = {
+    Terraform = "true"
+  }
+}
+
 variable "allocated_storage" {
   default = "5"
 }
@@ -26,8 +34,7 @@ variable "multi_az" {
   default = "false"
 }
 
-variable "vpc_security_group_ids" {
-}
+variable "vpc_security_group_ids" {}
 
 variable "subnet_ids" {
   type = "list"
