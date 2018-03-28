@@ -1,8 +1,6 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_region" "current" {
-  current = true
-}
+data "aws_region" "current" {}
 
 resource "aws_s3_bucket" "files" {
   bucket = "discourse-files-${var.cname_prefix}-${data.aws_caller_identity.current.account_id}"
@@ -17,8 +15,8 @@ resource "aws_s3_bucket" "files" {
 }
 
 resource "aws_iam_instance_profile" "main" {
-  name  = "${var.name_prefix}_instance_profile"
-  roles = ["${aws_iam_role.main.name}"]
+  name = "${var.name_prefix}_instance_profile"
+  role = "${aws_iam_role.main.name}"
 
   lifecycle {
     create_before_destroy = true
