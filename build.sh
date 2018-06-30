@@ -50,6 +50,6 @@ echo "Built Docker image but it's not pushed yet. Push when you're ready:"
 echo docker push $docker_tag
 
 echo "You may need to (re-)authenticate with ECR:"
-echo aws ecr get-login
+echo aws ecr get-login --no-include-email
 
 # todo: remove unused images
