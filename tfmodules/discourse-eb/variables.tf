@@ -51,8 +51,6 @@ variable "db_host" {}
 
 variable "smtp_address" {}
 
-variable "smtp_user_name" {}
-
 variable "service_role" {
   default = "aws-elasticbeanstalk-service-role"
 }

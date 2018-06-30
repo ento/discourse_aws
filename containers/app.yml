@@ -52,6 +52,7 @@ run:
         echo Getting credentials
         export DISCOURSE_DB_PASSWORD=$(credstash get discourse_db_password.$DISCOURSE_ENV)
         export DISCOURSE_SMTP_PASSWORD=$(credstash get discourse_smtp_password.$DISCOURSE_ENV)
+        export DISCOURSE_SMTP_USER_NAME=$(credstash get discourse_smtp_username.$DISCOURSE_ENV)
 
         # we need redis to migrate.
         echo Starting Redis

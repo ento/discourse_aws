@@ -63,7 +63,6 @@ path/to/your/configs
 - write your own Terraform config by combining modules in `./tfmodules`  (see: `./samples/main.tf`)
   - consider setting `certbot_extra_args` to `--staging` first to test SSL setup
 - plug in Terraform variables
-  - SES username
   - domain name
   - etc
 - initial deploy strategy should be AllAtOnce
@@ -72,6 +71,7 @@ path/to/your/configs
 - change db password on RDS
 - `credstash put discourse_db_password.discourse-dev`
 - `credstash put discourse_smtp_password.discourse-dev`
+- `credstash put discourse_smtp_username.discourse-dev`
 - `./build.sh`
   - builds and tags a Discourse docker image as `vYYYYmmdd-HHMMSS`
 - do a `docker push`: exact command will be printed out by `build.sh`
@@ -85,6 +85,7 @@ same as dev setup except for:
 
 - `credstash put discourse_db_password.discourse-prod`
 - `credstash put discourse_smtp_password.discourse-prod`
+- `credstash put discourse_smtp_username.discourse-prod`
 - deploy script is `./deploy-prod.sh`
   - deploys the same application version as `discourse-dev` environment's
 
