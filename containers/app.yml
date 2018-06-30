@@ -15,6 +15,7 @@ params:
 
 env:
   LANG: en_US.UTF-8
+  CHAMBER_VERSION: v1.13.0
   DISCOURSE_HOSTNAME:
   DISCOURSE_SMTP_ADDRESS:
 
@@ -39,20 +40,12 @@ hooks:
 ## Remember, this is YAML syntax - you can only have one block with a name
 run:
   - exec: echo "Beginning of custom commands"
-  - exec: apt-get install python3-setuptools python3-dev -y
-  - exec: easy_install3 pip
-  - exec: pip3 install credstash
+  - exec: curl --silent --location https://github.com/segmentio/chamber/releases/download/${CHAMBER_VERSION}/chamber-${CHAMBER_VERSION}-linux-amd64 -o /usr/local/bin/chamber
   - file:
       path: /sbin/eb-boot
       chmod: "+x"
       contents: |
         #!/bin/bash -ex
-        env
-
-        echo Getting credentials
-        export DISCOURSE_DB_PASSWORD=$(credstash get discourse_db_password.$DISCOURSE_ENV)
-        export DISCOURSE_SMTP_PASSWORD=$(credstash get discourse_smtp_password.$DISCOURSE_ENV)
-
         # we need redis to migrate.
         echo Starting Redis
         chpst -u redis -U redis /usr/bin/redis-server /etc/redis/redis.conf --daemonize yes
@@ -69,6 +62,6 @@ run:
         redis-cli shutdown
 
         echo Booting
-        exec /sbin/boot
+        chamber $DISCOURSE_ENV exec -- /sbin/boot
 
   - exec: echo "End of custom commands"

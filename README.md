@@ -8,7 +8,7 @@ Tooling to deploy Discourse on AWS.
 - Files and backups: S3
 - Outgoing email: SES
 - Incoming email + bounce handling: SES + S3 + AWS Lambda
-- Passwords for RDS and SES: credstash
+- Passwords for RDS and SES: SSM parameter store
 - SSL: Let's Encrypt + nginx on the EC2 instance managed by Elastic Beanstalk
 - Infrastructure management: Terraform
 
@@ -48,7 +48,6 @@ path/to/your/configs
 ## prerequisites
 
 - install [Terraform](https://www.terraform.io/)
-- set up [credstash](https://github.com/fugue/credstash)
 - set up your domain name of choice
   - CNAME -> cname_prefix.your_aws_region.elasticbeanstalk.com
   - MX -> inbound-smtp.your_ses_region.amazonaws.com
@@ -70,8 +69,8 @@ path/to/your/configs
   - plus whenever you expect certbot to create a new certificate
 - `terraform apply`
 - change db password on RDS
-- `credstash put discourse_db_password.discourse-dev`
-- `credstash put discourse_smtp_password.discourse-dev`
+- `aws ssm put-parameter --name discourse-dev.discourse_db_password --type SecureString --value ..`
+- `aws ssm put-parameter --name discourse-dev.discourse_smtp_password --type SecureString --value ..`
 - `./build.sh`
   - builds and tags a Discourse docker image as `vYYYYmmdd-HHMMSS`
 - do a `docker push`: exact command will be printed out by `build.sh`
@@ -83,8 +82,8 @@ path/to/your/configs
 
 same as dev setup except for:
 
-- `credstash put discourse_db_password.discourse-prod`
-- `credstash put discourse_smtp_password.discourse-prod`
+- `aws ssm put-parameter --name discourse-prod.discourse_db_password --type SecureString --value ..`
+- `aws ssm put-parameter --name discourse-prod.discourse_smtp_password --type SecureString --value ..`
 - deploy script is `./deploy-prod.sh`
   - deploys the same application version as `discourse-dev` environment's
 
