@@ -117,3 +117,24 @@ same as dev setup except for:
 - `docker push`: as instructed at the end of `./build.sh`'s output
 - `./deploy-dev.sh`: packages up a new application version and deploys to `discourse-dev`
 - `./deploy-prod.sh`: deploys the current application version deployed to `discourse-dev`
+
+## cycling SMTP credentials
+
+SMTP credentials is tied to the AWS access key of the user you created.
+
+- Create a new key pair for the existing user
+  - The access key is the SMTP username
+  - Calculate the SMTP password using [one of the scripts in the AWS documentation](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html?icmpid=docs_ses_console#smtp-credentials-convert)
+- Update the dev environment
+  - Update the SMTP credentials:
+    `credstash put discourse_smtp_password.discourse-dev`
+    `credstash put discourse_smtp_username.discourse-dev`
+  - Restart app servers of the dev environment through Elastic Beanstalk's console
+  - Send a test email through `https://<your dev discourse domain>/admin/email`
+- Update the prod environment
+  - Update the SMTP credentials:
+    `credstash put discourse_smtp_password.discourse-prod`
+    `credstash put discourse_smtp_username.discourse-prod`
+  - Restart app servers of the prod environment through Elastic Beanstalk's console
+  - Send a test email through `https://<your prod discourse domain>/admin/email`
+- Delete the old AWS access key once the new key's last used time is updated in the IAM console
