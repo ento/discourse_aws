@@ -241,11 +241,6 @@ resource "aws_elastic_beanstalk_environment" "main" {
     value     = "${var.smtp_address}"
   }
   setting {
-    namespace = "aws:elasticbeanstalk:application:environment"
-    name      = "DISCOURSE_SMTP_USER_NAME"
-    value     = "${var.smtp_user_name}"
-  }
-  setting {
     namespace = "aws:elasticbeanstalk:command"
     name      = "DeploymentPolicy"
     value     = "${var.deployment_policy}"

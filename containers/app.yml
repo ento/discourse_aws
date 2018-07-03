@@ -39,7 +39,7 @@ hooks:
 ## Remember, this is YAML syntax - you can only have one block with a name
 run:
   - exec: echo "Beginning of custom commands"
-  - exec: apt-get install python3-setuptools python3-dev -y
+  - exec: apt-get update --fix-missing && apt-get install python3-setuptools python3-dev -y
   - exec: easy_install3 pip
   - exec: pip3 install credstash
   - file:
@@ -52,6 +52,7 @@ run:
         echo Getting credentials
         export DISCOURSE_DB_PASSWORD=$(credstash get discourse_db_password.$DISCOURSE_ENV)
         export DISCOURSE_SMTP_PASSWORD=$(credstash get discourse_smtp_password.$DISCOURSE_ENV)
+        export DISCOURSE_SMTP_USER_NAME=$(credstash get discourse_smtp_username.$DISCOURSE_ENV)
 
         # we need redis to migrate.
         echo Starting Redis
