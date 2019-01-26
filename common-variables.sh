@@ -5,7 +5,7 @@ dev_env_name=discourse-dev
 prod_env_name=discourse-prod
 
 account_id=$(aws sts get-caller-identity --output text --query 'Account')
-region=$(aws configure get region)
+region=$(aws configure get region || echo $AWS_DEFAULT_REGION)
 
 if [ -z "$account_id" ] || [ -z "$region" ]; then
     echo "Could not determine your AWS account ID. Check out the log above."
