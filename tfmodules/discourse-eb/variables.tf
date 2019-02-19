@@ -20,6 +20,10 @@ variable "deployment_policy" {
   default = "Immmutable"
 }
 
+variable "solution_stack_name" {
+  default = "64bit Amazon Linux 2018.03 v2.12.8 running Docker 18.06.1-ce"
+}
+
 variable "hostname" {}
 
 variable "cname_prefix" {}

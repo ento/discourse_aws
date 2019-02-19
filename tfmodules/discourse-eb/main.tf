@@ -103,7 +103,7 @@ resource "aws_elastic_beanstalk_environment" "main" {
   name                = "${var.env_name}"
   application         = "${var.app_name}"
   cname_prefix        = "${var.cname_prefix}"
-  solution_stack_name = "64bit Amazon Linux 2018.03 v2.12.8 running Docker 18.06.1-ce"
+  solution_stack_name = "${var.solution_stack_name}"
 
   tags = "${var.tags}"
 
