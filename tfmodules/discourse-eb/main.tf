@@ -13,6 +13,11 @@ resource "aws_s3_bucket" "files" {
     }
   }
 
+  logging {
+    target_bucket = "${var.files_bucket_logging_target_bucket}"
+    target_prefix = "${var.files_bucket_logging_target_prefix}"
+  }
+
   tags = "${var.tags}"
 
   # ignore lifecycle rule set up by discourse

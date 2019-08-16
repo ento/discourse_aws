@@ -38,6 +38,14 @@ variable "certbot_extra_args" {
 
 variable "developer_emails" {}
 
+variable "files_bucket_logging_target_bucket" {
+  default = ""
+}
+
+variable "files_bucket_logging_target_prefix" {
+  default = ""
+}
+
 variable "iam_role_policy_arns" {
   type    = "list"
   default = []

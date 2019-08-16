@@ -18,6 +18,14 @@ variable "discourse_api_username" {
   default = "system"
 }
 
+variable "mailbox_bucket_logging_target_bucket" {
+  default = ""
+}
+
+variable "mailbox_bucket_logging_target_prefix" {
+  default = ""
+}
+
 variable "ses_rule_set_name" {}
 
 variable "ses_rule_start_position" {}

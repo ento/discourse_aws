@@ -17,6 +17,11 @@ resource "aws_s3_bucket" "mailbox" {
     }
   }
 
+  logging {
+    target_bucket = "${var.mailbox_bucket_logging_target_bucket}"
+    target_prefix = "${var.mailbox_bucket_logging_target_prefix}"
+  }
+
   tags = "${var.tags}"
 }
 
