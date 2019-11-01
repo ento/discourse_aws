@@ -61,5 +61,5 @@ def make_url(endpoint, api_key, api_username):
 def post_email(email, url):
     values = {'email': email}
     data = urllib.parse.urlencode(values)
-    req = urllib.request.Request(url, data)
+    req = urllib.request.Request(url, data.encode('utf-8'))
     return urllib.request.urlopen(req)
