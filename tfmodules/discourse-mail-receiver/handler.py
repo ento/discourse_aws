@@ -9,9 +9,9 @@ Required environment variables:
 - DISCOURSE_API_USERNAME
 """
 import os
-import urllib
-import urllib2
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+import urllib.parse
 import boto3
 
 
@@ -45,21 +45,21 @@ def make_url(endpoint, api_key, api_username):
     True
 
     """
-    parsed = urlparse.urlsplit(endpoint)
-    query = urlparse.parse_qs(parsed.query)
+    parsed = urllib.parse.urlsplit(endpoint)
+    query = urllib.parse.parse_qs(parsed.query)
     query['api_key'] = api_key
     query['api_username'] = api_username
-    return urlparse.urlunsplit((
+    return urllib.parse.urlunsplit((
         parsed.scheme,
         parsed.netloc,
         parsed.path,
-        urllib.urlencode(query, doseq=True),
+        urllib.parse.urlencode(query, doseq=True),
         parsed.fragment,
     ))
 
 
 def post_email(email, url):
     values = {'email': email}
-    data = urllib.urlencode(values)
-    req = urllib2.Request(url, data)
-    return urllib2.urlopen(req)
+    data = urllib.parse.urlencode(values)
+    req = urllib.request.Request(url, data)
+    return urllib.request.urlopen(req)

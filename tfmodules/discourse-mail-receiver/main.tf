@@ -155,7 +155,7 @@ EOF
 }
 
 resource "aws_lambda_function" "mail_receiver" {
-  runtime          = "python2.7"
+  runtime          = "python3.7"
   filename         = "${data.archive_file.lambda_function.output_path}"
   function_name    = "discourse-mail-receiver-${var.name_prefix}"
   role             = "${aws_iam_role.lambda_function.arn}"
