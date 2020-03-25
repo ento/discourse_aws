@@ -2,3 +2,4 @@ discourse_docker/
 Dockerfile
 .elasticbeanstalk/
 sourcebundle/
+.terraform/
