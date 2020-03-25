@@ -1,7 +1,8 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
 resource "aws_elastic_beanstalk_application" "main" {
-  name = "${var.app_name}"
+  name = var.app_name
 }
 
 resource "aws_s3_bucket" "main" {
@@ -15,5 +16,5 @@ resource "aws_s3_bucket" "main" {
     }
   }
 
-  tags = "${var.tags}"
+  tags = var.tags
 }

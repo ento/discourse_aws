@@ -1,6 +1,8 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
-data "aws_region" "current" {}
+data "aws_region" "current" {
+}
 
 #
 # S3
@@ -18,15 +20,15 @@ resource "aws_s3_bucket" "mailbox" {
   }
 
   logging {
-    target_bucket = "${var.mailbox_bucket_logging_target_bucket}"
-    target_prefix = "${var.mailbox_bucket_logging_target_prefix}"
+    target_bucket = var.mailbox_bucket_logging_target_bucket
+    target_prefix = var.mailbox_bucket_logging_target_prefix
   }
 
-  tags = "${var.tags}"
+  tags = var.tags
 }
 
 resource "aws_s3_bucket_policy" "ses_mailbox_access" {
-  bucket = "${aws_s3_bucket.mailbox.id}"
+  bucket = aws_s3_bucket.mailbox.id
 
   policy = <<EOF
 {
@@ -53,11 +55,12 @@ resource "aws_s3_bucket_policy" "ses_mailbox_access" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy" "discourse_s3_mailbox_access" {
   name = "${var.name_prefix}_s3_mailbox_access"
-  role = "${aws_iam_role.lambda_function.name}"
+  role = aws_iam_role.lambda_function.name
 
   policy = <<EOF
 {
@@ -74,6 +77,7 @@ resource "aws_iam_role_policy" "discourse_s3_mailbox_access" {
   ]
 }
 EOF
+
 }
 
 #
@@ -104,11 +108,12 @@ resource "aws_iam_role" "lambda_function" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy" "cloudwatch" {
   name = "${var.name_prefix}_cloudwatch_access"
-  role = "${aws_iam_role.lambda_function.name}"
+  role = aws_iam_role.lambda_function.name
 
   policy = <<EOF
 {
@@ -132,11 +137,12 @@ resource "aws_iam_role_policy" "cloudwatch" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy" "kms" {
   name = "${var.name_prefix}_kms_access"
-  role = "${aws_iam_role.lambda_function.name}"
+  role = aws_iam_role.lambda_function.name
 
   policy = <<EOF
 {
@@ -152,37 +158,41 @@ resource "aws_iam_role_policy" "kms" {
   ]
 }
 EOF
+
 }
 
 resource "aws_lambda_function" "mail_receiver" {
   runtime          = "python3.7"
-  filename         = "${data.archive_file.lambda_function.output_path}"
+  filename         = data.archive_file.lambda_function.output_path
   function_name    = "discourse-mail-receiver-${var.name_prefix}"
-  role             = "${aws_iam_role.lambda_function.arn}"
+  role             = aws_iam_role.lambda_function.arn
   handler          = "handler.handler"
-  source_code_hash = "${data.archive_file.lambda_function.output_base64sha256}"
+  source_code_hash = data.archive_file.lambda_function.output_base64sha256
 
-  tags = "${var.tags}"
+  tags = var.tags
 
   environment {
     variables = {
-      S3_BUCKET_NAME          = "${aws_s3_bucket.mailbox.id}"
-      DISCOURSE_MAIL_ENDPOINT = "${var.discourse_mail_endpoint}"
-      DISCOURSE_API_USERNAME  = "${var.discourse_api_username}"
+      S3_BUCKET_NAME          = aws_s3_bucket.mailbox.id
+      DISCOURSE_MAIL_ENDPOINT = var.discourse_mail_endpoint
+      DISCOURSE_API_USERNAME  = var.discourse_api_username
     }
   }
 
   lifecycle {
-    ignore_changes = ["environment.0.variables.%", "environment.0.variables.DISCOURSE_API_KEY"]
+    ignore_changes = [
+      "environment.0.variables.%",
+      "environment.0.variables.DISCOURSE_API_KEY",
+    ]
   }
 }
 
 resource "aws_lambda_permission" "from_ses" {
   statement_id   = "GiveSESPermissionToInvokeFunction"
   action         = "lambda:InvokeFunction"
-  function_name  = "${aws_lambda_function.mail_receiver.arn}"
+  function_name  = aws_lambda_function.mail_receiver.arn
   principal      = "ses.amazonaws.com"
-  source_account = "${data.aws_caller_identity.current.account_id}"
+  source_account = data.aws_caller_identity.current.account_id
 }
 
 #
@@ -191,19 +201,19 @@ resource "aws_lambda_permission" "from_ses" {
 
 resource "aws_ses_receipt_rule" "main" {
   name          = "${var.name_prefix}_store_and_post"
-  rule_set_name = "${var.ses_rule_set_name}"
-  recipients    = ["${var.discourse_hostname}"]
+  rule_set_name = var.ses_rule_set_name
+  recipients    = [var.discourse_hostname]
   enabled       = true
   scan_enabled  = false
 
   s3_action {
-    bucket_name = "${aws_s3_bucket.mailbox.id}"
-    position    = "${var.ses_rule_start_position}"
+    bucket_name = aws_s3_bucket.mailbox.id
+    position    = var.ses_rule_start_position
   }
 
   lambda_action {
-    function_arn    = "${aws_lambda_function.mail_receiver.arn}"
+    function_arn    = aws_lambda_function.mail_receiver.arn
     invocation_type = "Event"
-    position        = "${var.ses_rule_start_position + 1}"
+    position        = var.ses_rule_start_position + 1
   }
 }

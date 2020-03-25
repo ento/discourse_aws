@@ -3,7 +3,7 @@ variable "app_name" {
 }
 
 variable "tags" {
-  type = "map"
+  type = map(string)
 
   default = {
     Terraform = "true"
