@@ -181,7 +181,10 @@ resource "aws_lambda_function" "mail_receiver" {
 
   lifecycle {
     ignore_changes = [
-      environment[0].variables.DISCOURSE_API_KEY,
+      # 'brute-force' workaround for https://github.com/hashicorp/terraform/issues/22504
+      # Tell Terraform to ignore all environment changes so that manually added
+      # DISCOURSE_API_KEY won't get wiped out.
+      environment
     ]
   }
 }
