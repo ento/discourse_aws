@@ -3,7 +3,7 @@ variable "name_prefix" {
 }
 
 variable "tags" {
-  type = "map"
+  type = map(string)
 
   default = {
     Terraform = "true"
@@ -34,10 +34,11 @@ variable "multi_az" {
   default = "false"
 }
 
-variable "vpc_security_group_ids" {}
+variable "vpc_security_group_ids" {
+}
 
 variable "subnet_ids" {
-  type = "list"
+  type = list(string)
 }
 
 variable "parameter_group_family" {

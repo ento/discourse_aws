@@ -1,6 +1,8 @@
-data "aws_caller_identity" "current" {}
+data "aws_caller_identity" "current" {
+}
 
-data "aws_region" "current" {}
+data "aws_region" "current" {
+}
 
 resource "aws_s3_bucket" "files" {
   bucket = "discourse-files-${var.cname_prefix}-${data.aws_caller_identity.current.account_id}"
@@ -14,22 +16,22 @@ resource "aws_s3_bucket" "files" {
   }
 
   logging {
-    target_bucket = "${var.files_bucket_logging_target_bucket}"
-    target_prefix = "${var.files_bucket_logging_target_prefix}"
+    target_bucket = var.files_bucket_logging_target_bucket
+    target_prefix = var.files_bucket_logging_target_prefix
   }
 
-  tags = "${var.tags}"
+  tags = var.tags
 
   # ignore lifecycle rule set up by discourse
   # see: discourse/lib/s3_helper.rb
   lifecycle {
-    ignore_changes = ["lifecycle_rule"]
+    ignore_changes = [lifecycle_rule]
   }
 }
 
 resource "aws_iam_instance_profile" "main" {
   name = "${var.name_prefix}_instance_profile"
-  role = "${aws_iam_role.main.name}"
+  role = aws_iam_role.main.name
 
   lifecycle {
     create_before_destroy = true
@@ -55,21 +57,22 @@ resource "aws_iam_role" "main" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy_attachment" "web_tier" {
-  role       = "${aws_iam_role.main.name}"
+  role       = aws_iam_role.main.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
 
 resource "aws_iam_role_policy_attachment" "ecr" {
-  role       = "${aws_iam_role.main.name}"
+  role       = aws_iam_role.main.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
 resource "aws_iam_role_policy" "s3" {
   name = "${var.name_prefix}_s3_access"
-  role = "${aws_iam_role.main.name}"
+  role = aws_iam_role.main.name
 
   policy = <<EOF
 {
@@ -104,26 +107,27 @@ resource "aws_iam_role_policy" "s3" {
   ]
 }
 EOF
+
 }
 
 resource "aws_iam_role_policy_attachment" "extras" {
-  role       = "${aws_iam_role.main.name}"
-  policy_arn = "${element(var.iam_role_policy_arns,count.index)}"
-  count      = "${var.iam_role_policy_arn_count}"
+  role       = aws_iam_role.main.name
+  policy_arn = element(var.iam_role_policy_arns, count.index)
+  count      = var.iam_role_policy_arn_count
 }
 
 resource "aws_elastic_beanstalk_environment" "main" {
-  name                = "${var.env_name}"
-  application         = "${var.app_name}"
-  cname_prefix        = "${var.cname_prefix}"
-  solution_stack_name = "${var.solution_stack_name}"
+  name                = var.env_name
+  application         = var.app_name
+  cname_prefix        = var.cname_prefix
+  solution_stack_name = var.solution_stack_name
 
-  tags = "${var.tags}"
+  tags = var.tags
 
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
-    value     = "${aws_iam_instance_profile.main.arn}"
+    value     = aws_iam_instance_profile.main.arn
   }
 
   setting {
@@ -135,19 +139,19 @@ resource "aws_elastic_beanstalk_environment" "main" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "SecurityGroups"
-    value     = "${join(",",var.security_group_ids)}"
+    value     = join(",", var.security_group_ids)
   }
 
   setting {
     namespace = "aws:ec2:vpc"
     name      = "VPCId"
-    value     = "${var.vpc_id}"
+    value     = var.vpc_id
   }
 
   setting {
     namespace = "aws:ec2:vpc"
     name      = "Subnets"
-    value     = "${var.subnet_id}"
+    value     = var.subnet_id
   }
 
   setting {
@@ -160,7 +164,7 @@ resource "aws_elastic_beanstalk_environment" "main" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "AWS_DEFAULT_REGION"
-    value     = "${data.aws_region.current.name}"
+    value     = data.aws_region.current.name
   }
 
   # ssl
@@ -168,22 +172,22 @@ resource "aws_elastic_beanstalk_environment" "main" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "CERT_DOMAIN"
-    value     = "${var.hostname}"
+    value     = var.hostname
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "CERT_EMAIL"
-    value     = "${var.cert_email}"
+    value     = var.cert_email
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "CERT_S3_BUCKET"
-    value     = "${var.cert_s3_bucket}"
+    value     = var.cert_s3_bucket
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "CERTBOT_EXTRA_ARGS"
-    value     = "${var.certbot_extra_args}"
+    value     = var.certbot_extra_args
   }
 
   # discourse env vars
@@ -231,32 +235,32 @@ resource "aws_elastic_beanstalk_environment" "main" {
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "DISCOURSE_HOSTNAME"
-    value     = "${var.hostname}"
+    value     = var.hostname
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "DISCOURSE_DEVELOPER_EMAILS"
-    value     = "${var.developer_emails}"
+    value     = var.developer_emails
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "DISCOURSE_ENV"
-    value     = "${var.env_name}"
+    value     = var.env_name
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "DISCOURSE_DB_HOST"
-    value     = "${var.db_host}"
+    value     = var.db_host
   }
   setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name      = "DISCOURSE_SMTP_ADDRESS"
-    value     = "${var.smtp_address}"
+    value     = var.smtp_address
   }
   setting {
     namespace = "aws:elasticbeanstalk:command"
     name      = "DeploymentPolicy"
-    value     = "${var.deployment_policy}"
+    value     = var.deployment_policy
   }
   setting {
     namespace = "aws:elasticbeanstalk:environment"
@@ -266,7 +270,7 @@ resource "aws_elastic_beanstalk_environment" "main" {
   setting {
     namespace = "aws:elasticbeanstalk:environment"
     name      = "ServiceRole"
-    value     = "${var.service_role}"
+    value     = var.service_role
   }
   setting {
     namespace = "aws:elasticbeanstalk:healthreporting:system"
