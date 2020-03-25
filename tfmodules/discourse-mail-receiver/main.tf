@@ -181,8 +181,7 @@ resource "aws_lambda_function" "mail_receiver" {
 
   lifecycle {
     ignore_changes = [
-      "environment.0.variables.%",
-      "environment.0.variables.DISCOURSE_API_KEY",
+      environment[0].variables.DISCOURSE_API_KEY,
     ]
   }
 }
